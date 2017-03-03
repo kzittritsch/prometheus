@@ -93,7 +93,7 @@ func (cg *ConfigGridDiscovery) Run(ctx context.Context, ch chan<- []*config.Targ
 
 func (cg *ConfigGridDiscovery) refresh() (*config.TargetGroup, error) {
 	tg := &config.TargetGroup{
-		Source: "CONFIG_GRID_" + cg.Environment,
+		Source: "CONFIG_GRID_" + cg.Project + "_" + cg.Datacenter + "_" + cg.Environment,
 	}
 	configs, err := getConfigGrid(cg.URL)
 	if err != nil {
