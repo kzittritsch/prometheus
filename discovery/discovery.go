@@ -30,6 +30,7 @@ import (
 	"github.com/prometheus/prometheus/discovery/marathon"
 	"github.com/prometheus/prometheus/discovery/triton"
 	"github.com/prometheus/prometheus/discovery/zookeeper"
+	"github.com/prometheus/prometheus/discovery/configgrid"
 	"golang.org/x/net/context"
 )
 
@@ -114,6 +115,9 @@ func ProvidersFromConfig(cfg config.ServiceDiscoveryConfig) map[string]TargetPro
 			continue
 		}
 		app("triton", i, t)
+	}
+	for i, c := range cfg.ConfigGridConfig {
+		app("configgrid", i, configgrid.NewDiscovery(c))
 	}
 	if len(cfg.StaticConfigs) > 0 {
 		app("static", 0, NewStaticProvider(cfg.StaticConfigs))

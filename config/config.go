@@ -446,6 +446,8 @@ type ServiceDiscoveryConfig struct {
 	AzureSDConfigs []*AzureSDConfig `yaml:"azure_sd_configs,omitempty"`
 	// List of Triton service discovery configurations.
 	TritonSDConfigs []*TritonSDConfig `yaml:"triton_sd_configs,omitempty"`
+	// List of Config Grid Configs
+	ConfigGridConfig []*ConfigGridConfig `yaml:"config_grid_configs,omitempty"`
 
 	// Catches all undefined fields and must be empty after parsing.
 	XXX map[string]interface{} `yaml:",inline"`
@@ -1100,6 +1102,34 @@ func (c *AzureSDConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	}
 
 	return checkOverflow(c.XXX, "azure_sd_config")
+}
+
+// ConfigGridConfig is the configuration for Config Grid discovery
+type ConfigGridConfig struct {
+	URL             URL            `yaml:"url"`
+	Environment     string        `yaml:"environment"`
+	Project         string        `yaml:"project"`
+	Datacenter      string        `yaml:"datacenter"`
+	Port            int           `yaml:"port"`
+	RefreshInterval time.Duration `yaml:"refresh_interval,omitempty"`
+	// Catches all undefined fields and must be empty after parsing.
+	XXX map[string]interface{} `yaml:",inline"`
+}
+
+func (c *ConfigGridConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	type plain ConfigGridConfig
+	err := unmarshal((*plain)(c))
+	if err != nil {
+		return err
+	}
+	if c.RefreshInterval.Nanoseconds() < 1 {
+		t, err := time.ParseDuration("300s")
+		if err != nil {
+			return err
+		}
+		c.RefreshInterval = t
+	}
+	return checkOverflow(c.XXX, "config_grid_configs")
 }
 
 // TritonSDConfig is the configuration for Triton based service discovery.
