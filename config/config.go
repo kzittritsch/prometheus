@@ -1106,7 +1106,7 @@ func (c *AzureSDConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 
 // ConfigGridConfig is the configuration for Config Grid discovery
 type ConfigGridConfig struct {
-	URL             URL            `yaml:"url"`
+	URL             URL           `yaml:"url"`
 	Environment     string        `yaml:"environment"`
 	Project         string        `yaml:"project"`
 	Datacenter      string        `yaml:"datacenter"`
