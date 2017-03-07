@@ -167,6 +167,11 @@ var (
 	DefaultRemoteWriteConfig = RemoteWriteConfig{
 		RemoteTimeout: model.Duration(30 * time.Second),
 	}
+
+	// Default ConfigGridConfig
+	DefaultConfigGridConfig = ConfigGridConfig{
+		RefreshInterval: model.Duration(300 * time.Second),
+	}
 )
 
 // URL is a custom URL type that allows validation at configuration load time.
@@ -1106,29 +1111,24 @@ func (c *AzureSDConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 
 // ConfigGridConfig is the configuration for Config Grid discovery
 type ConfigGridConfig struct {
-	URL             URL           `yaml:"url"`
-	Environment     string        `yaml:"environment"`
-	Project         string        `yaml:"project"`
-	Datacenter      string        `yaml:"datacenter"`
-	Port            int           `yaml:"port"`
-	RefreshInterval time.Duration `yaml:"refresh_interval,omitempty"`
+	URL             URL            `yaml:"url"`
+	Environment     string         `yaml:"environment"`
+	Project         string         `yaml:"project"`
+	Datacenter      string         `yaml:"datacenter"`
+	Port            int            `yaml:"port"`
+	RefreshInterval model.Duration `yaml:"refresh_interval,omitempty"`
 	// Catches all undefined fields and must be empty after parsing.
 	XXX map[string]interface{} `yaml:",inline"`
 }
 
 func (c *ConfigGridConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	*c = DefaultConfigGridConfig
 	type plain ConfigGridConfig
 	err := unmarshal((*plain)(c))
 	if err != nil {
 		return err
 	}
-	if c.RefreshInterval.Nanoseconds() < 1 {
-		t, err := time.ParseDuration("300s")
-		if err != nil {
-			return err
-		}
-		c.RefreshInterval = t
-	}
+
 	return checkOverflow(c.XXX, "config_grid_configs")
 }
 

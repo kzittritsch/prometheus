@@ -1,14 +1,22 @@
 package configgrid
 
 import (
-	"golang.org/x/net/context"
 	"encoding/json"
-	"github.com/prometheus/common/log"
-	"github.com/prometheus/common/model"
-	"github.com/prometheus/prometheus/config"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/prometheus/common/log"
+	"github.com/prometheus/common/model"
+	"github.com/prometheus/prometheus/config"
+	"golang.org/x/net/context"
+)
+
+const (
+	gcLabel            = model.MetaLabelPrefix + "cg_"
+	gcEnvironmentLabel = gcLabel + "environment"
+	gcDatacenterLabel  = gcLabel + "datacenter"
+	gcProjectLabel     = gcLabel + "project"
 )
 
 type configGridJSON struct {
@@ -61,7 +69,7 @@ func NewDiscovery(conf *config.ConfigGridConfig) *ConfigGridDiscovery {
 		Project:         conf.Project,
 		Datacenter:      conf.Datacenter,
 		MetricsPort:     conf.Port,
-		RefreshInterval: conf.RefreshInterval,
+		RefreshInterval: time.Duration(conf.RefreshInterval),
 	}
 }
 
@@ -103,12 +111,17 @@ func (cg *ConfigGridDiscovery) refresh() (*config.TargetGroup, error) {
 
 	for _, conf := range configs.Configs {
 		if conf.Project == cg.Project && conf.Env == cg.Environment && conf.Dc == cg.Datacenter {
-			log.Debugf("Adding AddressLabel: %s", conf.Hostname + ":" + strconv.Itoa(cg.MetricsPort))
+			log.Debugf("Adding AddressLabel: %s", conf.Hostname+":"+strconv.Itoa(cg.MetricsPort))
 			labels := model.LabelSet{}
 			labels[model.AddressLabel] = model.LabelValue(conf.Hostname + ":" + strconv.Itoa(cg.MetricsPort))
+			labels[gcEnvironmentLabel] = model.LabelValue(cg.Environment)
+			labels[gcDatacenterLabel] = model.LabelValue(cg.Datacenter)
+			labels[gcProjectLabel] = model.LabelValue(cg.Project)
 			tg.Targets = append(tg.Targets, labels)
 		}
 	}
+
+	log.Debug("Target labels: ", tg.Targets)
 
 	return tg, nil
 }
