@@ -13,10 +13,10 @@ import (
 )
 
 const (
-	gcLabel            = model.MetaLabelPrefix + "cg_"
-	gcEnvironmentLabel = gcLabel + "environment"
-	gcDatacenterLabel  = gcLabel + "datacenter"
-	gcProjectLabel     = gcLabel + "project"
+	cgLabel            = model.MetaLabelPrefix + "cg_"
+	cgEnvironmentLabel = cgLabel + "environment"
+	cgDatacenterLabel  = cgLabel + "datacenter"
+	cgProjectLabel     = cgLabel + "project"
 )
 
 type configGridJSON struct {
@@ -114,9 +114,9 @@ func (cg *ConfigGridDiscovery) refresh() (*config.TargetGroup, error) {
 			log.Debugf("Adding AddressLabel: %s", conf.Hostname+":"+strconv.Itoa(cg.MetricsPort))
 			labels := model.LabelSet{}
 			labels[model.AddressLabel] = model.LabelValue(conf.Hostname + ":" + strconv.Itoa(cg.MetricsPort))
-			labels[gcEnvironmentLabel] = model.LabelValue(cg.Environment)
-			labels[gcDatacenterLabel] = model.LabelValue(cg.Datacenter)
-			labels[gcProjectLabel] = model.LabelValue(cg.Project)
+			labels[cgEnvironmentLabel] = model.LabelValue(cg.Environment)
+			labels[cgDatacenterLabel] = model.LabelValue(cg.Datacenter)
+			labels[cgProjectLabel] = model.LabelValue(cg.Project)
 			tg.Targets = append(tg.Targets, labels)
 		}
 	}
