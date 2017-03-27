@@ -18,7 +18,7 @@ pkgs          = $(shell $(GO) list ./... | grep -v /vendor/)
 
 PREFIX                  ?= $(shell pwd)
 BIN_DIR                 ?= $(shell pwd)
-DOCKER_IMAGE_NAME       ?= prometheus
+DOCKER_IMAGE_NAME       ?= registry.int.dealer.com/stillsimmering/prometheus
 DOCKER_IMAGE_TAG        ?= $(subst /,-,$(shell git rev-parse --abbrev-ref HEAD))
 
 ifdef DEBUG
@@ -57,8 +57,11 @@ tarball: promu
 	@$(PROMU) tarball --prefix $(PREFIX) $(BIN_DIR)
 
 docker:
+	docker login -u dealerdotcom registry.int.dealer.com
 	@echo ">> building docker image"
 	@docker build -t "$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)" .
+	@echo ">> pushing docker image"
+	@docker push "$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)"
 
 assets:
 	@echo ">> writing assets"
